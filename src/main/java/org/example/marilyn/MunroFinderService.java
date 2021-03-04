@@ -1,7 +1,7 @@
 package org.example.marilyn;
 
 import static java.nio.file.Files.lines;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Lookup service for munros that can sort and filter the results based on height and category.
  */
@@ -21,35 +24,48 @@ public class MunroFinderService {
     private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
     private static final Pattern POSITIVE_INTEGER_PATTERN = Pattern.compile(POSITIVE_INTEGER_REGEX);
+    private final List<Munro> munros;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public MunroFinderService() {
-        loadMunroData();
+        munros = loadMunroData();
     }
 
-    private void loadMunroData() {
+    /**
+     * Performs a search without any queries, i.e. will return unfiltered and unsorted data.
+     *
+     * @return the search results as a JSON array formatted string.
+     */
+    public String search() throws JsonProcessingException {
+        return objectMapper.writeValueAsString(munros);
+    }
+
+    /**
+     * Performs a search, using the provided query to manipulate the result.
+     *
+     * @return the search results as a JSON array formatted string.
+     */
+    public String search(Query query) {
+        return "";
+    }
+
+    private List<Munro> loadMunroData() {
         final URL resource = MunroFinderService.class.getResource(MUNRO_CSV);
-        final List<Munro> collect;
-        try (Stream<String> lines = lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)){
-            collect = lines.map(s -> s.split(SEPARATOR, -1)).filter(this::isMunroEntry).map(Munro::new).collect(toList());
+        try (Stream<String> lines = lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)) {
+            return lines.map(s -> s.split(SEPARATOR, -1)).filter(this::isMunroEntry).map(Munro::new)
+                        .collect(toUnmodifiableList());
         } catch (IOException | URISyntaxException e) {
             throw new IllegalStateException("Failed to load data: ", e);
         }
     }
 
-    /**
-     * Performs a search without any queries, i.e. will return unfiltered and unsorted data.
-     * @return the search results as a JSON array formatted string.
-     */
-    public String search() {
-        return "";
-    }
-
-
-
-    private boolean isMunroEntry(String [] entry) {
+    private boolean isMunroEntry(String[] entry) {
         return entry.length > 0 && POSITIVE_INTEGER_PATTERN.matcher(entry[0]).matches();
     }
 
+    /**
+     * Builds queries for the {@link MunroFinderService}.
+     */
     public static class Query {
         private float minHeight;
         private float maxHeight;
