@@ -1,12 +1,20 @@
-package org.example.munros;
+package org.example.marilyn;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * POJO representing a single munro entry.
  */
 public class Munro {
 
+    private static final int CATEGORY = 28;
+    private static final int NAME = 6;
+    private static final int HEIGHT_METRES = 10;
+    private static final int GRID_REF = 14;
     private String name;
     private float height;
     private String gridReference;
@@ -14,17 +22,14 @@ public class Munro {
 
     /**
      * Create a munro entry with the provided values.
-     *
-     * @param name the name of the munro.
-     * @param height the height of the munro in metres.
-     * @param gridReference the grid reference.
-     * @param category whether this is a munro or munro top.
      */
-    public Munro(String name, float height, String gridReference, Category category) {
-        this.name = name;
-        this.height = height;
-        this.gridReference = gridReference;
-        this.category = category;
+    public Munro(String [] entry) {
+        if (isNotBlank(entry[CATEGORY])) {
+            this.name = entry[NAME];
+            this.height = Float.parseFloat(entry[HEIGHT_METRES]);
+            this.gridReference = entry[GRID_REF];
+            this.category = Category.valueOf(entry[CATEGORY]);
+        }
     }
 
     public String getName() {

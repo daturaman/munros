@@ -1,14 +1,15 @@
-package org.example.munros;
+package org.example.marilyn;
+
+import static java.nio.file.Files.lines;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -27,10 +28,9 @@ public class MunroFinderService {
 
     private void loadMunroData() {
         final URL resource = MunroFinderService.class.getResource(MUNRO_CSV);
-        final List<String[]> collect;
-        try (Stream<String> lines = Files.lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)){
-            collect = lines.map(s -> s.split(SEPARATOR)).filter(this::isMunroEntry).collect(Collectors.toList());
-System.out.println(collect);
+        final List<Munro> collect;
+        try (Stream<String> lines = lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)){
+            collect = lines.map(s -> s.split(SEPARATOR, -1)).filter(this::isMunroEntry).map(Munro::new).collect(toList());
         } catch (IOException | URISyntaxException e) {
             throw new IllegalStateException("Failed to load data: ", e);
         }

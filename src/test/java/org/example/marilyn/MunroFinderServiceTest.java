@@ -1,6 +1,4 @@
-package org.example.munros;
-
-import static org.junit.jupiter.api.Assertions.*;
+package org.example.marilyn;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +19,9 @@ class MunroFinderServiceTest {
 
     @Test
     public void shouldReturnAllDataWhenNoSearchQueriesProvided() {
-
+        final String search = service.search();
+        System.out.println(search);
+        //assert that entries with no category are not included
+        //assert no null properites
     }
 }
