@@ -1,30 +1,36 @@
 package org.example.munros;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Lookup service for munros that can sort and filter the results based on height and category.
  */
 public class MunroFinderService {
 
+    private static final String SEPARATOR = ",";
+    private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
+    private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
+    private static final Pattern POSITIVE_INTEGER_PATTERN = Pattern.compile(POSITIVE_INTEGER_REGEX);
+
     public MunroFinderService() {
         loadMunroData();
     }
 
     private void loadMunroData() {
-        try {
-            final URL resource = MunroFinderService.class.getResource("/munrotab_v6.2.csv");
-            final List<String> strings = Files.readAllLines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1);
+        final URL resource = MunroFinderService.class.getResource(MUNRO_CSV);
+        final List<String[]> collect;
+        try (Stream<String> lines = Files.lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)){
+            collect = lines.map(s -> s.split(SEPARATOR)).filter(this::isMunroEntry).collect(Collectors.toList());
+System.out.println(collect);
         } catch (IOException | URISyntaxException e) {
             throw new IllegalStateException("Failed to load data: ", e);
         }
@@ -36,6 +42,12 @@ public class MunroFinderService {
      */
     public String search() {
         return "";
+    }
+
+
+
+    private boolean isMunroEntry(String [] entry) {
+        return entry.length > 0 && POSITIVE_INTEGER_PATTERN.matcher(entry[0]).matches();
     }
 
     public static class Query {
