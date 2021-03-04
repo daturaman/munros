@@ -39,8 +39,7 @@ public class MunroFinderService {
      * @return the search results as a JSON array formatted string.
      */
     public String search() throws JsonProcessingException {
-        final String s = objectMapper.writeValueAsString(munros);
-        return s;
+        return objectMapper.writeValueAsString(munros);
     }
 
     /**
@@ -48,8 +47,8 @@ public class MunroFinderService {
      *
      * @return the search results as a JSON array formatted string.
      */
-    public String search(Query query) {
-        return "";
+    public String search(Query query) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(munros);
     }
 
     private List<Munro> loadMunroData() {
