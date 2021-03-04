@@ -1,10 +1,9 @@
 package org.example.marilyn;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static java.lang.Float.parseFloat;
+import static org.example.marilyn.Munro.Category.valueOf;
 
 import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * POJO representing a single munro entry.
@@ -20,20 +19,17 @@ public class Munro {
     private String gridReference;
     private Category category;
 
-    public Munro () {
-
+    public Munro() {
     }
 
     /**
      * Create a munro entry with the provided values.
      */
-    public Munro(String [] entry) {
-        if (isNotBlank(entry[CATEGORY])) {
-            this.name = entry[NAME];
-            this.height = Float.parseFloat(entry[HEIGHT_METRES]);
-            this.gridReference = entry[GRID_REF];
-            this.category = Category.valueOf(entry[CATEGORY]);
-        }
+    public Munro(String[] entry) {
+        this.name = entry[NAME];
+        this.height = parseFloat(entry[HEIGHT_METRES]);
+        this.gridReference = entry[GRID_REF];
+        this.category = valueOf(entry[CATEGORY]);
     }
 
     public String getName() {

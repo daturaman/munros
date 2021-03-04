@@ -2,6 +2,7 @@ package org.example.marilyn;
 
 import static java.nio.file.Files.lines;
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,6 +25,7 @@ public class MunroFinderService {
     private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
     private static final Pattern POSITIVE_INTEGER_PATTERN = Pattern.compile(POSITIVE_INTEGER_REGEX);
+    private static final int CATEGORY = 28;
     private final List<Munro> munros;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -37,7 +39,8 @@ public class MunroFinderService {
      * @return the search results as a JSON array formatted string.
      */
     public String search() throws JsonProcessingException {
-        return objectMapper.writeValueAsString(munros);
+        final String s = objectMapper.writeValueAsString(munros);
+        return s;
     }
 
     /**
@@ -52,7 +55,10 @@ public class MunroFinderService {
     private List<Munro> loadMunroData() {
         final URL resource = MunroFinderService.class.getResource(MUNRO_CSV);
         try (Stream<String> lines = lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)) {
-            return lines.map(s -> s.split(SEPARATOR, -1)).filter(this::isMunroEntry).map(Munro::new)
+            return lines.map(s -> s.split(SEPARATOR, -1))
+                        .filter(this::isMunroEntry)
+                        .filter(this::hasCategory)
+                        .map(Munro::new)
                         .collect(toUnmodifiableList());
         } catch (IOException | URISyntaxException e) {
             throw new IllegalStateException("Failed to load data: ", e);
@@ -61,6 +67,10 @@ public class MunroFinderService {
 
     private boolean isMunroEntry(String[] entry) {
         return entry.length > 0 && POSITIVE_INTEGER_PATTERN.matcher(entry[0]).matches();
+    }
+
+    private boolean hasCategory(String[] entry) {
+        return isNotBlank(entry[CATEGORY]);
     }
 
     /**
