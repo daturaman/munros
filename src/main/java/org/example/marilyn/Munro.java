@@ -16,9 +16,13 @@ public class Munro {
     private static final int HEIGHT_METRES = 10;
     private static final int GRID_REF = 14;
     private String name;
-    private float height;
+    private Float height;
     private String gridReference;
     private Category category;
+
+    public Munro () {
+
+    }
 
     /**
      * Create a munro entry with the provided values.
@@ -36,7 +40,7 @@ public class Munro {
         return name;
     }
 
-    public float getHeight() {
+    public Float getHeight() {
         return height;
     }
 
