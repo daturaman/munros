@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 import org.example.marilyn.Munro.Category;
 import org.example.marilyn.api.MunroFinderService;
 import org.example.marilyn.api.MunroFinderService.Query;
+import org.example.marilyn.data.MunroLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,16 +29,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class MunroFinderServiceTest {
 
-    private MunroFinderService service;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final static Predicate<Munro> CATEGORY_NOT_NULL = munro -> munro.getCategory() == null;
     private final static Predicate<Munro> GRID_REF_NOT_NULL = munro -> munro.getGridReference() == null;
     private final static Predicate<Munro> HEIGHT_NOT_NULL = munro -> munro.getHeight() == null;
     private final static Predicate<Munro> NAME_NOT_NULL = munro -> munro.getName() == null;
+    private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private MunroFinderService service;
+    private MunroLoader munroLoader;
 
     @BeforeEach
     void setUp() {
-        service = new MunroFinderService();
+        munroLoader = new MunroLoader(MunroFinderServiceTest.class.getResource(MUNRO_CSV));
+        service = new MunroFinderService(munroLoader);
     }
 
     @AfterEach

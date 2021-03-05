@@ -19,11 +19,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class MunroFinderService {
 
+    private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
     private final List<Munro> munros;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Initialises a {@link MunroFinderService} using the default data loader.
+     */
     public MunroFinderService() {
-        munros = MunroLoader.loadMunroData();
+        this.munros = new MunroLoader(MunroFinderService.class.getResource(MUNRO_CSV)).loadMunroData();
+    }
+
+    /**
+     * Initialises the finder service with the provided munro data loader.
+     * @param munroLoader the service for loading munro data.
+     */
+    public MunroFinderService(MunroLoader munroLoader) {
+        munros = munroLoader.loadMunroData();
     }
 
     /**

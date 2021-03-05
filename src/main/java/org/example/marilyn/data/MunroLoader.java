@@ -14,19 +14,26 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.example.marilyn.Munro;
-import org.example.marilyn.api.MunroFinderService;
 
 public class MunroLoader {
 
     private static final int CATEGORY = 28;
     private static final String SEPARATOR = ",";
-    private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
     private static final Pattern POSITIVE_INTEGER_PATTERN = Pattern.compile(POSITIVE_INTEGER_REGEX);
+    private final URL munroUrl;
 
-    public static List<Munro> loadMunroData() {
-        final URL resource = MunroFinderService.class.getResource(MUNRO_CSV);
-        try (Stream<String> lines = Files.lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)) {
+    public MunroLoader(URL munroUrl) {
+        this.munroUrl = munroUrl;
+    }
+
+    /**
+     * Reads the munro data from file and deserialises it to a list of {@link Munro}s.
+     *
+     * @return a list of {@link Munro}s.
+     */
+    public List<Munro> loadMunroData() {
+        try (Stream<String> lines = Files.lines(Paths.get(munroUrl.toURI()), StandardCharsets.ISO_8859_1)) {
             return lines.map(s -> s.split(SEPARATOR, -1))
                         .filter(MunroLoader::isMunroEntry)
                         .filter(MunroLoader::hasCategory)
