@@ -3,11 +3,12 @@ package org.example.marilyn;
 import static org.example.marilyn.Munro.Category.MUN;
 import static org.example.marilyn.Munro.Category.TOP;
 import static org.example.marilyn.api.MunroFinderService.Query.query;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -18,6 +19,7 @@ import org.example.marilyn.api.MunroFinderService.Query;
 import org.example.marilyn.data.MunroLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -34,14 +36,13 @@ class MunroFinderServiceTest {
     private final static Predicate<Munro> HEIGHT_NOT_NULL = munro -> munro.getHeight() == null;
     private final static Predicate<Munro> NAME_NOT_NULL = munro -> munro.getName() == null;
     private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
+    private static final String SORT_HEIGHT_ASC_BEFORE = "/sort_height_asc_before.csv";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private MunroFinderService service;
-    private MunroLoader munroLoader;
 
     @BeforeEach
     void setUp() {
-        munroLoader = new MunroLoader(MunroFinderServiceTest.class.getResource(MUNRO_CSV));
-        service = new MunroFinderService(munroLoader);
+        service = createService(MUNRO_CSV);
     }
 
     @AfterEach
@@ -60,34 +61,61 @@ class MunroFinderServiceTest {
     @ParameterizedTest
     @ValueSource(floats = {900.0f, 1100.5f, 1012.2f, 984.2f})
     public void shouldConstrainResultsWithMinimumHeight(Float minimum) throws IOException {
-        Query searchQuery = query().minHeight(minimum);
-        final List<Munro> munros = searchAndSerialise(searchQuery);
+        final List<Munro> munros = searchAndSerialise(query().minHeight(minimum), service);
         assertTrue(munros.stream().noneMatch(munro -> munro.getHeight() < minimum));
     }
 
     @ParameterizedTest
     @ValueSource(floats = {900.0f, 1100.5f, 1012.2f, 984.2f})
     public void shouldConstrainResultsWithMaximumHeight(Float maximum) throws IOException {
-        Query searchQuery = new Query().maxHeight(maximum);
-        final List<Munro> munros = searchAndSerialise(searchQuery);
+        final List<Munro> munros = searchAndSerialise(query().maxHeight(maximum), service);
         assertTrue(munros.stream().noneMatch(munro -> munro.getHeight() > maximum));
     }
 
     @ParameterizedTest
     @MethodSource("filterByCategory")
     public void shouldFilterResultsByCategory(Query searchQuery, Category excluded) throws IOException {
-        final List<Munro> munros = searchAndSerialise(searchQuery);
+        final List<Munro> munros = searchAndSerialise(searchQuery, service);
         assertTrue(munros.stream().noneMatch(munro -> munro.getCategory() == excluded));
+    }
+
+    @Test
+    public void shouldSortByHeightAscending() throws IOException {
+        MunroFinderService beforeSort = createService(SORT_HEIGHT_ASC_BEFORE);
+
+        final List<Munro> actual = searchAndSerialise(query().sortHeightAsc(), beforeSort);
+        final List<Munro> expected = objectMapper
+                .readValue(getClass().getResource("/sortafterasc.json"), new TypeReference<>() {
+                });
+        assertIterableEquals(actual, expected);
+    }
+
+    @Test
+    public void shouldSortByHeightDescending() throws IOException {
+        MunroFinderService beforeSort = createService(SORT_HEIGHT_ASC_BEFORE);
+
+        final List<Munro> actual = searchAndSerialise(query().sortHeightDesc(), beforeSort);
+        final List<Munro> expected = objectMapper
+                .readValue(getClass().getResource("/sortafterdesc.json"), new TypeReference<>() {
+                });
+        assertIterableEquals(actual, expected);
+    }
+
+    private MunroFinderService createService(String file) {
+        MunroLoader munroLoader = new MunroLoader(getClass().getResource(file));
+        return new MunroFinderService(munroLoader);
     }
 
     private List<Munro> searchAndSerialise() throws IOException {
         final String search = service.search();
-        return objectMapper.readValue(search.getBytes(), new TypeReference<>() {});
+        return objectMapper.readValue(search.getBytes(), new TypeReference<>() {
+        });
     }
 
-    private List<Munro> searchAndSerialise(Query searchQuery) throws IOException {
+    private List<Munro> searchAndSerialise(Query searchQuery, MunroFinderService service) throws IOException {
         final String search = service.search(searchQuery);
-        return objectMapper.readValue(search.getBytes(), new TypeReference<>() {});
+        return objectMapper.readValue(search.getBytes(), new TypeReference<>() {
+        });
     }
 
     private static Stream<Arguments> filterByCategory() {

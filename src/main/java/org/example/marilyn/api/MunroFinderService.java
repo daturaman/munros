@@ -1,15 +1,17 @@
 package org.example.marilyn.api;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.example.marilyn.Munro.Category.MUN;
 import static org.example.marilyn.Munro.Category.TOP;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
+import org.example.marilyn.Munro;
 import org.example.marilyn.Munro.Category;
 import org.example.marilyn.data.MunroLoader;
-import org.example.marilyn.Munro;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +56,7 @@ public class MunroFinderService {
      */
     public String search(Query query) throws JsonProcessingException {
         Predicate<Munro> filters = query.maxHeight.and(query.minHeight).and(query.categoryFilter);
-        final List<Munro> searchResult = munros.stream().filter(filters).collect(Collectors.toUnmodifiableList());
+        final List<Munro> searchResult = munros.stream().filter(filters).sorted(query.sorts).collect(toUnmodifiableList());
         return objectMapper.writeValueAsString(searchResult);
     }
 
@@ -68,7 +70,10 @@ public class MunroFinderService {
         private static final Predicate<Munro> MUNRO_TOP_FILTER = munro -> munro.getCategory() == TOP;
         private Predicate<Munro> minHeight = EMPTY_FILTER;
         private Predicate<Munro> maxHeight = EMPTY_FILTER;
-        private Predicate<Munro> categoryFilter = MUNRO_FILTER.and(MUNRO_TOP_FILTER);
+        private Predicate<Munro> categoryFilter = MUNRO_FILTER.or(MUNRO_TOP_FILTER);
+        private Comparator<Munro> sortHeightAsc = (o1, o2) -> 0;
+        private Predicate<Munro> filters = EMPTY_FILTER;//TODO search calls this, rather than all the filters
+        private Comparator<Munro> sorts = (o1, o2) -> 0;//and this
         private int limitResults;
 
         /**
@@ -106,6 +111,24 @@ public class MunroFinderService {
          */
         public Query category(Category category) {
             this.categoryFilter = category == MUN ? MUNRO_FILTER : MUNRO_TOP_FILTER;
+            return this;
+        }
+
+        /**
+         * Sorts the results by height in ascending order.
+         * @return this {@link Query}.
+         */
+        public Query sortHeightAsc() {
+            this.sorts = sorts.thenComparing(Munro::getHeight);
+            return this;
+        }
+
+        /**
+         * Sorts the results by height in descending order.
+         * @return this {@link Query}.
+         */
+        public Query sortHeightDesc() {
+            this.sorts = sorts.thenComparing(Munro::getHeight).reversed();
             return this;
         }
 
