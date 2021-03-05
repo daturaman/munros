@@ -1,6 +1,11 @@
-package org.example.marilyn;
+package org.example.marilyn.api;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.example.marilyn.data.MunroLoader;
+import org.example.marilyn.Munro;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +19,7 @@ public class MunroFinderService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public MunroFinderService() {
-        munros = DataLoader.loadMunroData();
+        munros = MunroLoader.loadMunroData();
     }
 
     /**
@@ -32,19 +37,20 @@ public class MunroFinderService {
      * @return the search results as a JSON array formatted string.
      */
     public String search(Query query) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(munros);
+        final List<Munro> searchResult = munros.stream().filter(query.minHeight).collect(Collectors.toUnmodifiableList());
+        return objectMapper.writeValueAsString(searchResult);
     }
 
     /**
      * Builds queries for the {@link MunroFinderService}.
      */
     public static class Query {
-        private float minHeight;
+        private Predicate<Munro> minHeight;
         private float maxHeight;
         private int limitResults;
 
         public Query minHeight(float minHeight) {
-            this.minHeight = minHeight;
+            this.minHeight = munro -> munro.getHeight() >= minHeight;
             return this;
         }
 

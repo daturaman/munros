@@ -1,4 +1,4 @@
-package org.example.marilyn;
+package org.example.marilyn.data;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -13,7 +13,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DataLoader {
+import org.example.marilyn.Munro;
+import org.example.marilyn.api.MunroFinderService;
+
+public class MunroLoader {
 
     private static final int CATEGORY = 28;
     private static final String SEPARATOR = ",";
@@ -21,12 +24,12 @@ public class DataLoader {
     private static final String POSITIVE_INTEGER_REGEX = "[0-9]+";
     private static final Pattern POSITIVE_INTEGER_PATTERN = Pattern.compile(POSITIVE_INTEGER_REGEX);
 
-    static List<Munro> loadMunroData() {
+    public static List<Munro> loadMunroData() {
         final URL resource = MunroFinderService.class.getResource(MUNRO_CSV);
         try (Stream<String> lines = Files.lines(Paths.get(resource.toURI()), StandardCharsets.ISO_8859_1)) {
             return lines.map(s -> s.split(SEPARATOR, -1))
-                        .filter(DataLoader::isMunroEntry)
-                        .filter(DataLoader::hasCategory)
+                        .filter(MunroLoader::isMunroEntry)
+                        .filter(MunroLoader::hasCategory)
                         .map(Munro::new)
                         .collect(Collectors.toUnmodifiableList());
         } catch (IOException | URISyntaxException e) {

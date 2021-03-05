@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.example.marilyn.MunroFinderService.Query;
+import org.example.marilyn.api.MunroFinderService;
+import org.example.marilyn.api.MunroFinderService.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
