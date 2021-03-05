@@ -49,6 +49,14 @@ public class MunroFinderService {
         private float maxHeight;
         private int limitResults;
 
+        /**
+         * Factory method to make query initialisation slightly more fluent.
+         * @return a new {@link Query} instance.
+         */
+        public static Query query() {
+            return new Query();
+        }
+
         public Query minHeight(float minHeight) {
             this.minHeight = munro -> munro.getHeight() >= minHeight;
             return this;

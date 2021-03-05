@@ -1,5 +1,6 @@
 package org.example.marilyn;
 
+import static org.example.marilyn.api.MunroFinderService.Query.query;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -43,10 +44,18 @@ class MunroFinderServiceTest {
 
     @ParameterizedTest
     @ValueSource(floats = {900.0f, 1100.5f, 1012.2f, 984.2f})
-    public void shouldRestrictResultsToMinimumHeight(Float minimum) throws IOException {
-        Query searchQuery = new Query().minHeight(minimum);
+    public void shouldConstrainResultsWithMinimumHeight(Float minimum) throws IOException {
+        Query searchQuery = query().minHeight(minimum);
         final List<Munro> munros = searchAndSerialise(searchQuery);
         assertTrue(munros.stream().noneMatch(munro -> munro.getHeight() < minimum));
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = {900.0f, 1100.5f, 1012.2f, 984.2f})
+    public void shouldConstrainResultsWithMaximumHeight(Float maximum) throws IOException {
+        Query searchQuery = new Query().maxHeight(maximum);
+        final List<Munro> munros = searchAndSerialise(searchQuery);
+        assertTrue(munros.stream().noneMatch(munro -> munro.getHeight() > maximum));
     }
 
     private List<Munro> searchAndSerialise() throws IOException {

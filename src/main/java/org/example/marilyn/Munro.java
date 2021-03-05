@@ -72,4 +72,14 @@ public class Munro {
     public int hashCode() {
         return Objects.hash(name, height, gridReference, category);
     }
+
+    @Override
+    public String toString() {
+        return "Munro{" +
+                "name='" + name + '\'' +
+                ", height=" + height +
+                ", gridReference='" + gridReference + '\'' +
+                ", category=" + category +
+                '}';
+    }
 }
