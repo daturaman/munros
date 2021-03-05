@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.example.marilyn.Munro.Category;
 import org.example.marilyn.data.MunroLoader;
 import org.example.marilyn.Munro;
 
@@ -83,6 +84,16 @@ public class MunroFinderService {
          */
         public Query maxHeight(float maxHeight) {
             this.maxHeight = munro -> munro.getHeight() <= maxHeight;
+            return this;
+        }
+
+        /**
+         * Filters the results based on munro category.
+         * @param category the munro category.
+         * @return this {@link Query}.
+         */
+        public Query category(Category category) {
+            this.categoryFilter = category == MUN ? MUNRO_FILTER : MUNRO_TOP_FILTER;
             return this;
         }
 

@@ -4,17 +4,22 @@ import static org.example.marilyn.Munro.Category.MUN;
 import static org.example.marilyn.Munro.Category.TOP;
 import static org.example.marilyn.api.MunroFinderService.Query.query;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import org.example.marilyn.Munro.Category;
 import org.example.marilyn.api.MunroFinderService;
 import org.example.marilyn.api.MunroFinderService.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,10 +29,10 @@ class MunroFinderServiceTest {
 
     private MunroFinderService service;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final static Predicate<Munro> categoryNotNull = munro -> munro.getCategory() == null;
-    private final static Predicate<Munro> gridRefNotNull = munro -> munro.getGridReference() == null;
-    private final static Predicate<Munro> heightNotNull = munro -> munro.getHeight() == null;
-    private final static Predicate<Munro> nameNotNull = munro -> munro.getName() == null;
+    private final static Predicate<Munro> CATEGORY_NOT_NULL = munro -> munro.getCategory() == null;
+    private final static Predicate<Munro> GRID_REF_NOT_NULL = munro -> munro.getGridReference() == null;
+    private final static Predicate<Munro> HEIGHT_NOT_NULL = munro -> munro.getHeight() == null;
+    private final static Predicate<Munro> NAME_NOT_NULL = munro -> munro.getName() == null;
 
     @BeforeEach
     void setUp() {
@@ -41,7 +46,8 @@ class MunroFinderServiceTest {
     @Test
     public void shouldReturnAllDataWhenNoSearchQueriesProvided() throws IOException {
         final List<Munro> munros = searchAndSerialise();
-        assertTrue(munros.stream().noneMatch(categoryNotNull.and(gridRefNotNull).and(heightNotNull).and(nameNotNull)));
+        assertTrue(munros.stream().noneMatch(CATEGORY_NOT_NULL.and(GRID_REF_NOT_NULL).and(HEIGHT_NOT_NULL).and(
+                NAME_NOT_NULL)));
         assertTrue(munros.stream().anyMatch(munro -> munro.getCategory() == MUN));
         assertTrue(munros.stream().anyMatch(munro -> munro.getCategory() == TOP));
     }
@@ -62,6 +68,13 @@ class MunroFinderServiceTest {
         assertTrue(munros.stream().noneMatch(munro -> munro.getHeight() > maximum));
     }
 
+    @ParameterizedTest
+    @MethodSource("filterByCategory")
+    public void shouldFilterResultsByCategory(Query searchQuery, Category excluded) throws IOException {
+        final List<Munro> munros = searchAndSerialise(searchQuery);
+        assertTrue(munros.stream().noneMatch(munro -> munro.getCategory() == excluded));
+    }
+
     private List<Munro> searchAndSerialise() throws IOException {
         final String search = service.search();
         return objectMapper.readValue(search.getBytes(), new TypeReference<>() {});
@@ -72,9 +85,10 @@ class MunroFinderServiceTest {
         return objectMapper.readValue(search.getBytes(), new TypeReference<>() {});
     }
 
-    private Query[] filterByCategory() {
-        return new Query[] {
-                query().maxHeight(1)
-        };
+    private static Stream<Arguments> filterByCategory() {
+        return Stream.of(
+                arguments(query().category(MUN), TOP),
+                arguments(query().category(TOP), MUN)
+        );
     }
 }
