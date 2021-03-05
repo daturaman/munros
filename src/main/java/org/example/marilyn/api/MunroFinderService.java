@@ -37,7 +37,8 @@ public class MunroFinderService {
      * @return the search results as a JSON array formatted string.
      */
     public String search(Query query) throws JsonProcessingException {
-        final List<Munro> searchResult = munros.stream().filter(query.minHeight).collect(Collectors.toUnmodifiableList());
+        Predicate<Munro> filters = query.maxHeight.and(query.minHeight);
+        final List<Munro> searchResult = munros.stream().filter(filters).collect(Collectors.toUnmodifiableList());
         return objectMapper.writeValueAsString(searchResult);
     }
 
@@ -45,8 +46,9 @@ public class MunroFinderService {
      * Builds queries for the {@link MunroFinderService}.
      */
     public static class Query {
-        private Predicate<Munro> minHeight;
-        private float maxHeight;
+        private static final Predicate<Munro> EMPTY_FILTER = p -> true;
+        private Predicate<Munro> minHeight = EMPTY_FILTER;
+        private Predicate<Munro> maxHeight = EMPTY_FILTER;
         private int limitResults;
 
         /**
@@ -63,7 +65,7 @@ public class MunroFinderService {
         }
 
         public Query maxHeight(float maxHeight) {
-            this.maxHeight = maxHeight;
+            this.maxHeight = munro -> munro.getHeight() <= maxHeight;
             return this;
         }
 
