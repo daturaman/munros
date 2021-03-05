@@ -1,5 +1,7 @@
 package org.example.marilyn;
 
+import static org.example.marilyn.Munro.Category.MUN;
+import static org.example.marilyn.Munro.Category.TOP;
 import static org.example.marilyn.api.MunroFinderService.Query.query;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,6 +42,8 @@ class MunroFinderServiceTest {
     public void shouldReturnAllDataWhenNoSearchQueriesProvided() throws IOException {
         final List<Munro> munros = searchAndSerialise();
         assertTrue(munros.stream().noneMatch(categoryNotNull.and(gridRefNotNull).and(heightNotNull).and(nameNotNull)));
+        assertTrue(munros.stream().anyMatch(munro -> munro.getCategory() == MUN));
+        assertTrue(munros.stream().anyMatch(munro -> munro.getCategory() == TOP));
     }
 
     @ParameterizedTest
@@ -66,5 +70,11 @@ class MunroFinderServiceTest {
     private List<Munro> searchAndSerialise(Query searchQuery) throws IOException {
         final String search = service.search(searchQuery);
         return objectMapper.readValue(search.getBytes(), new TypeReference<>() {});
+    }
+
+    private Query[] filterByCategory() {
+        return new Query[] {
+                query().maxHeight(1)
+        };
     }
 }
