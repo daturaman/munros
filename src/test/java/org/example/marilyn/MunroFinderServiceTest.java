@@ -81,7 +81,7 @@ class MunroFinderServiceTest {
 
     @ParameterizedTest
     @MethodSource("sorting")
-    public void shouldSortByHeightAscending(Query sortQuery, String afterSortFile) throws IOException {
+    public void shouldSortAccordingToQuery(Query sortQuery, String afterSortFile) throws IOException {
         MunroFinderService sortService = createService(SORT_TEST_CSV);
 
         final List<Munro> actual = searchAndSerialise(sortQuery, sortService);

@@ -68,6 +68,7 @@ public class MunroFinderService {
         private Predicate<Munro> filters = p -> true;
         private Comparator<Munro> sorts = (o1, o2) -> 0;
         private int limitResults;
+        private String description = "Search for entries where ";
 
         /**
          * Factory method to make query initialisation slightly more fluent.
@@ -84,6 +85,7 @@ public class MunroFinderService {
          */
         public Query minHeight(float minHeight) {
             this.filters = filters.and(munro -> munro.getHeight() >= minHeight);
+            description += String.format("minimum height is %f; ", minHeight);
             return this;
         }
 
@@ -94,6 +96,7 @@ public class MunroFinderService {
          */
         public Query maxHeight(float maxHeight) {
             this.filters = filters.and(munro -> munro.getHeight() <= maxHeight);
+            description += String.format("maximum height is %f; ", maxHeight);
             return this;
         }
 
@@ -104,6 +107,7 @@ public class MunroFinderService {
          */
         public Query category(Category category) {
             this.filters = category == MUN ? filters.and(MUNRO_FILTER) : filters.and(MUNRO_TOP_FILTER);
+            description += String.format("category is %s; ", category);
             return this;
         }
 
@@ -113,6 +117,7 @@ public class MunroFinderService {
          */
         public Query sortHeightAsc() {
             this.sorts = sorts.thenComparing(Munro::getHeight);
+            description += "sorting by height ascending; ";
             return this;
         }
 
@@ -122,12 +127,18 @@ public class MunroFinderService {
          */
         public Query sortHeightDesc() {
             this.sorts = sorts.thenComparing(Munro::getHeight).reversed();
+            description += "sorting by height descending; ";
             return this;
         }
 
         public Query limitResults(int limitResults) {
             this.limitResults = limitResults;
             return this;
+        }
+
+        @Override
+        public String toString() {
+            return description;
         }
     }
 }
