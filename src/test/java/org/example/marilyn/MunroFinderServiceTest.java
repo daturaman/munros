@@ -18,7 +18,6 @@ import org.example.marilyn.Munro.Category;
 import org.example.marilyn.api.MunroFinderService;
 import org.example.marilyn.api.MunroFinderService.Query;
 import org.example.marilyn.data.MunroLoader;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,10 +49,6 @@ class MunroFinderServiceTest {
     @BeforeEach
     void setUp() {
         service = createService(MUNRO_CSV);
-    }
-
-    @AfterEach
-    void tearDown() {
     }
 
     @Test

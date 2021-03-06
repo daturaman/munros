@@ -55,7 +55,7 @@ public class MunroFinderService {
      * @return the search results as a JSON array formatted string.
      */
     public String search(Query query) throws JsonProcessingException {
-        long limit = query.limitResults == 0 ? munros.size() : query.limitResults;
+        long limit = query.limit == 0 ? munros.size() : query.limit;
         final List<Munro> searchResult = munros.stream()
                                                .filter(query.filters)
                                                .sorted(query.sorts)
@@ -73,7 +73,7 @@ public class MunroFinderService {
         private static final Predicate<Munro> MUNRO_TOP_FILTER = munro -> munro.getCategory() == TOP;
         private Predicate<Munro> filters = p -> true;
         private Comparator<Munro> sorts = (o1, o2) -> 0;
-        private long limitResults;
+        private long limit;
         private Float minHeight;
         private Float maxHeight;
         private String description = "Search for entries where ";
@@ -178,13 +178,13 @@ public class MunroFinderService {
         /**
          * Restricts the results by the provided limit.
          *
-         * @param limitResults the maximum number of results to return.
+         * @param limit the maximum number of results to return.
          * @return this {@link Query}.
          */
 
-        public Query limitResults(long limitResults) {
-            this.limitResults = limitResults;
-            description += String.format("limiting results to %d entries", limitResults);
+        public Query limitResults(long limit) {
+            this.limit = limit;
+            description += String.format("limiting results to %d entries", limit);
             return this;
         }
 

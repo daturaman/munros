@@ -19,7 +19,11 @@ public class Munro {
     private String gridReference;
     private Category category;
 
+    /**
+     * The default constructor.
+     */
     public Munro() {
+        //Need this for Jackson
     }
 
     /**
@@ -52,7 +56,7 @@ public class Munro {
      * Describes a Munro's category.
      */
     public enum Category {
-        MUN, TOP;
+        MUN, TOP
     }
 
     @Override
