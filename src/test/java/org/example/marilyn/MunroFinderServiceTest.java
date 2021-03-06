@@ -35,6 +35,8 @@ class MunroFinderServiceTest {
     private final static Predicate<Munro> NAME_NOT_NULL = munro -> munro.getName() == null;
     private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
     private static final String SORT_TEST_CSV = "/sort_test.csv";
+    private static final String SORT_AFTER_ASC_JSON = "/sortafterasc.json";
+    private static final String SORT_AFTER_DESC_JSON = "/sortafterdesc.json";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private MunroFinderService service;
 
@@ -77,24 +79,14 @@ class MunroFinderServiceTest {
         assertTrue(munros.stream().noneMatch(munro -> munro.getCategory() == excluded));
     }
 
-    @Test
-    public void shouldSortByHeightAscending() throws IOException {
-        MunroFinderService beforeSort = createService(SORT_TEST_CSV);
+    @ParameterizedTest
+    @MethodSource("sorting")
+    public void shouldSortByHeightAscending(Query sortQuery, String afterSortFile) throws IOException {
+        MunroFinderService sortService = createService(SORT_TEST_CSV);
 
-        final List<Munro> actual = searchAndSerialise(query().sortHeightAsc(), beforeSort);
+        final List<Munro> actual = searchAndSerialise(sortQuery, sortService);
         final List<Munro> expected = objectMapper
-                .readValue(getClass().getResource("/sortafterasc.json"), new TypeReference<>() {
-                });
-        assertIterableEquals(actual, expected);
-    }
-
-    @Test
-    public void shouldSortByHeightDescending() throws IOException {
-        MunroFinderService beforeSort = createService(SORT_TEST_CSV);
-
-        final List<Munro> actual = searchAndSerialise(query().sortHeightDesc(), beforeSort);
-        final List<Munro> expected = objectMapper
-                .readValue(getClass().getResource("/sortafterdesc.json"), new TypeReference<>() {
+                .readValue(getClass().getResource(afterSortFile), new TypeReference<>() {
                 });
         assertIterableEquals(actual, expected);
     }
@@ -120,6 +112,13 @@ class MunroFinderServiceTest {
         return Stream.of(
                 arguments(query().category(MUN), TOP),
                 arguments(query().category(TOP), MUN)
+        );
+    }
+
+    private static Stream<Arguments> sorting() {
+        return Stream.of(
+                arguments(query().sortHeightAsc(), SORT_AFTER_ASC_JSON),
+                arguments(query().sortHeightDesc(), SORT_AFTER_DESC_JSON)
         );
     }
 }
