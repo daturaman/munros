@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
@@ -19,7 +18,6 @@ import org.example.marilyn.api.MunroFinderService.Query;
 import org.example.marilyn.data.MunroLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,7 +34,7 @@ class MunroFinderServiceTest {
     private final static Predicate<Munro> HEIGHT_NOT_NULL = munro -> munro.getHeight() == null;
     private final static Predicate<Munro> NAME_NOT_NULL = munro -> munro.getName() == null;
     private static final String MUNRO_CSV = "/munrotab_v6.2.csv";
-    private static final String SORT_HEIGHT_ASC_BEFORE = "/sort_height_asc_before.csv";
+    private static final String SORT_TEST_CSV = "/sort_test.csv";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private MunroFinderService service;
 
@@ -81,7 +79,7 @@ class MunroFinderServiceTest {
 
     @Test
     public void shouldSortByHeightAscending() throws IOException {
-        MunroFinderService beforeSort = createService(SORT_HEIGHT_ASC_BEFORE);
+        MunroFinderService beforeSort = createService(SORT_TEST_CSV);
 
         final List<Munro> actual = searchAndSerialise(query().sortHeightAsc(), beforeSort);
         final List<Munro> expected = objectMapper
@@ -92,7 +90,7 @@ class MunroFinderServiceTest {
 
     @Test
     public void shouldSortByHeightDescending() throws IOException {
-        MunroFinderService beforeSort = createService(SORT_HEIGHT_ASC_BEFORE);
+        MunroFinderService beforeSort = createService(SORT_TEST_CSV);
 
         final List<Munro> actual = searchAndSerialise(query().sortHeightDesc(), beforeSort);
         final List<Munro> expected = objectMapper
