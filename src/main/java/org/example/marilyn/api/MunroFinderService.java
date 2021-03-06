@@ -33,6 +33,7 @@ public class MunroFinderService {
 
     /**
      * Initialises the finder service with the provided munro data loader.
+     *
      * @param munroLoader the service for loading munro data.
      */
     public MunroFinderService(MunroLoader munroLoader) {
@@ -54,7 +55,12 @@ public class MunroFinderService {
      * @return the search results as a JSON array formatted string.
      */
     public String search(Query query) throws JsonProcessingException {
-        final List<Munro> searchResult = munros.stream().filter(query.filters).sorted(query.sorts).collect(toUnmodifiableList());
+        long limit = query.limitResults == 0 ? munros.size() : query.limitResults;
+        final List<Munro> searchResult = munros.stream()
+                                               .filter(query.filters)
+                                               .sorted(query.sorts)
+                                               .limit(limit)
+                                               .collect(toUnmodifiableList());
         return objectMapper.writeValueAsString(searchResult);
     }
 
@@ -67,11 +73,12 @@ public class MunroFinderService {
         private static final Predicate<Munro> MUNRO_TOP_FILTER = munro -> munro.getCategory() == TOP;
         private Predicate<Munro> filters = p -> true;
         private Comparator<Munro> sorts = (o1, o2) -> 0;
-        private int limitResults;
+        private long limitResults;
         private String description = "Search for entries where ";
 
         /**
          * Factory method to make query initialisation slightly more fluent.
+         *
          * @return a new {@link Query} instance.
          */
         public static Query query() {
@@ -80,6 +87,7 @@ public class MunroFinderService {
 
         /**
          * Adds a minimum height search criterion to the query.
+         *
          * @param minHeight floating point value representing the minimum height, in metres, of munros to find.
          * @return this {@link Query}.
          */
@@ -91,6 +99,7 @@ public class MunroFinderService {
 
         /**
          * Adds a maximum height search criterion to the query.
+         *
          * @param maxHeight floating point value representing the maximum height, in metres, of munros to find.
          * @return this {@link Query}.
          */
@@ -102,6 +111,7 @@ public class MunroFinderService {
 
         /**
          * Filters the results based on munro category.
+         *
          * @param category the munro category.
          * @return this {@link Query}.
          */
@@ -113,6 +123,7 @@ public class MunroFinderService {
 
         /**
          * Sorts the results by height in ascending order.
+         *
          * @return this {@link Query}.
          */
         public Query sortHeightAsc() {
@@ -123,6 +134,7 @@ public class MunroFinderService {
 
         /**
          * Sorts the results by height in descending order.
+         *
          * @return this {@link Query}.
          */
         public Query sortHeightDesc() {
@@ -131,8 +143,38 @@ public class MunroFinderService {
             return this;
         }
 
-        public Query limitResults(int limitResults) {
+        /**
+         * Sorts the results by name in ascending order.
+         *
+         * @return this {@link Query}.
+         */
+        public Query sortNameAsc() {
+            this.sorts = sorts.thenComparing(Munro::getName);
+            description += "sorting by name ascending; ";
+            return this;
+        }
+
+        /**
+         * Sorts the results by name in descending order.
+         *
+         * @return this {@link Query}.
+         */
+        public Query sortNameDesc() {
+            this.sorts = sorts.thenComparing(Munro::getName).reversed();
+            description += "sorting by name descending; ";
+            return this;
+        }
+
+        /**
+         * Restricts the results by the provided limit.
+         *
+         * @param limitResults the maximum number of results to return.
+         * @return this {@link Query}.
+         */
+
+        public Query limitResults(long limitResults) {
             this.limitResults = limitResults;
+            description += String.format("limiting results to %d entries", limitResults);
             return this;
         }
 

@@ -1,0 +1,62 @@
+[
+	{
+		"name": "Ben Chonzie",
+		"height": 931,
+		"gridReference": "NN773308",
+		"category": "MUN"
+	},
+	{
+		"name": "Ben Lomond",
+		"height": 974,
+		"gridReference": "NN367028",
+		"category": "MUN"
+	},
+	{
+		"name": "Ben More",
+		"height": 1174,
+		"gridReference": "NN432244",
+		"category": "MUN"
+	},
+	{
+		"name": "Ben Vorlich",
+		"height": 985,
+		"gridReference": "NN629189",
+		"category": "MUN"
+	},
+	{
+		"name": "Cruach Ardrain SW Top",
+		"height": 1044.9,
+		"gridReference": "NN408211",
+		"category": "TOP"
+	},
+	{
+		"name": "Stob Binnein",
+		"height": 1165,
+		"gridReference": "NN434227",
+		"category": "MUN"
+	},
+	{
+		"name": "Stob Binnein - Creag a' Bhragit",
+		"height": 923,
+		"gridReference": "NN448224",
+		"category": "TOP"
+	},
+	{
+		"name": "Stob Binnein - Meall na Dige",
+		"height": 966,
+		"gridReference": "NN450225",
+		"category": "TOP"
+	},
+	{
+		"name": "Stob Binnein - Stob Coire an Lochain",
+		"height": 1068,
+		"gridReference": "NN438220",
+		"category": "TOP"
+	},
+	{
+		"name": "Stuc a' Chroin",
+		"height": 975,
+		"gridReference": "NN617174",
+		"category": "MUN"
+	}
+]
