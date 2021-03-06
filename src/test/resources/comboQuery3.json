@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Stuc a' Chroin",
+    "height": 975,
+    "gridReference": "NN617174",
+    "category": "MUN"
+  },
+  {
+    "name": "Ben Vorlich",
+    "height": 985,
+    "gridReference": "NN629189",
+    "category": "MUN"
+  },
+  {
+    "name": "Cruach Ardrain SW Top",
+    "height": 1044.9,
+    "gridReference": "NN408211",
+    "category": "TOP"
+  },
+  {
+    "name": "Stob Binnein - Stob Coire an Lochain",
+    "height": 1068,
+    "gridReference": "NN438220",
+    "category": "TOP"
+  }
+]

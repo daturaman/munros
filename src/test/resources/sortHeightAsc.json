@@ -51,9 +51,12 @@
     "name": "Stob Binnein",
     "height": 1165,
     "gridReference": "NN434227",
-    "category": "MUN"},
+    "category": "MUN"
+  },
   {
-    "name":"Ben More",
-    "height":1174,
-    "gridReference":"NN432244",
-    "category":"MUN"}]
+    "name": "Ben More",
+    "height": 1174,
+    "gridReference": "NN432244",
+    "category": "MUN"
+  }
+]

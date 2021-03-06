@@ -5,6 +5,7 @@ import static org.example.marilyn.Munro.Category.TOP;
 import static org.example.marilyn.api.MunroFinderService.Query.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -40,6 +41,9 @@ class MunroFinderServiceTest {
     private static final String SORT_HEIGHT_DESC = "/sortHeightDesc.json";
     private static final String SORT_NAME_ASC = "/sortNameAsc.json";
     private static final String SORT_NAME_DESC = "/sortNameDesc.json";
+    private static final String COMBO_QUERY_1 = "/comboQuery1.json";
+    private static final String COMBO_QUERY_2 = "/comboQuery2.json";
+    private static final String COMBO_QUERY_3 = "/comboQuery3.json";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private MunroFinderService service;
 
@@ -56,9 +60,9 @@ class MunroFinderServiceTest {
     public void shouldReturnAllDataWhenNoSearchQueriesProvided() throws IOException {
         final List<Munro> munros = searchAndSerialise();
         assertTrue(munros.stream().noneMatch(CATEGORY_NOT_NULL
-                        .and(GRID_REF_NOT_NULL)
-                        .and(HEIGHT_NOT_NULL)
-                        .and(NAME_NOT_NULL)));
+                .and(GRID_REF_NOT_NULL)
+                .and(HEIGHT_NOT_NULL)
+                .and(NAME_NOT_NULL)));
         assertTrue(munros.stream().anyMatch(munro -> munro.getCategory() == MUN));
         assertTrue(munros.stream().anyMatch(munro -> munro.getCategory() == TOP));
     }
@@ -79,6 +83,13 @@ class MunroFinderServiceTest {
     }
 
     @ParameterizedTest
+    @MethodSource("invalidFilterByHeight")
+    public void shouldThrowExceptionWhenPassedInvalidHeights(float minimum, float maximum) {
+        assertThrows(IllegalArgumentException.class,
+                () -> searchAndSerialise(query().minHeight(minimum).maxHeight(maximum), service));
+    }
+
+    @ParameterizedTest
     @MethodSource("filterByCategory")
     public void shouldFilterResultsByCategory(Query searchQuery, Category excluded) throws IOException {
         final List<Munro> munros = searchAndSerialise(searchQuery, service);
@@ -86,14 +97,13 @@ class MunroFinderServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("sorting")
-    public void shouldSortAccordingToQuery(Query sortQuery, String afterSortFile) throws IOException {
-        MunroFinderService sortService = createService(SORT_TEST_CSV);
-
-        final List<Munro> actual = searchAndSerialise(sortQuery, sortService);
-        final List<Munro> expected = objectMapper
-                .readValue(getClass().getResource(afterSortFile), new TypeReference<>() {
-                });
+    @MethodSource("queries")
+    public void shouldSearchUsingOneOrMoreQueryCriteria(Query query, String afterSortFile) throws IOException {
+        MunroFinderService finderService = createService(SORT_TEST_CSV);
+        final List<Munro> actual = searchAndSerialise(query, finderService);
+        final List<Munro> expected = objectMapper.readValue(
+                getClass().getResource(afterSortFile),
+                new TypeReference<>() {});
         assertIterableEquals(actual, expected);
     }
 
@@ -110,8 +120,7 @@ class MunroFinderServiceTest {
 
     private List<Munro> searchAndSerialise(Query searchQuery, MunroFinderService service) throws IOException {
         final String search = service.search(searchQuery);
-        return objectMapper.readValue(search.getBytes(), new TypeReference<>() {
-        });
+        return objectMapper.readValue(search.getBytes(), new TypeReference<>() {});
     }
 
     private static Stream<Arguments> filterByHeight() {
@@ -123,6 +132,15 @@ class MunroFinderServiceTest {
         );
     }
 
+    private static Stream<Arguments> invalidFilterByHeight() {
+        return Stream.of(
+                arguments(1000.0f, 900.0f),
+                arguments(1100.2f, 951.0f),
+                arguments(1201.3f, 1001.1f),
+                arguments(1299.0f, 1111.1f)
+        );
+    }
+
     private static Stream<Arguments> filterByCategory() {
         return Stream.of(
                 arguments(query().category(MUN), TOP),
@@ -130,12 +148,15 @@ class MunroFinderServiceTest {
         );
     }
 
-    private static Stream<Arguments> sorting() {
+    private static Stream<Arguments> queries() {
         return Stream.of(
                 arguments(query().sortHeightAsc(), SORT_HEIGHT_ASC),
                 arguments(query().sortHeightDesc(), SORT_HEIGHT_DESC),
                 arguments(query().sortNameAsc(), SORT_NAME_ASC),
-                arguments(query().sortNameDesc(), SORT_NAME_DESC)
+                arguments(query().sortNameDesc(), SORT_NAME_DESC),
+                arguments(query().minHeight(1000.0f).sortHeightDesc(), COMBO_QUERY_1),
+                arguments(query().sortNameAsc().maxHeight(950.0f), COMBO_QUERY_2),
+                arguments(query().maxHeight(1070.0f).sortHeightAsc().minHeight(975.0f), COMBO_QUERY_3)
         );
     }
 }

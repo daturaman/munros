@@ -74,6 +74,8 @@ public class MunroFinderService {
         private Predicate<Munro> filters = p -> true;
         private Comparator<Munro> sorts = (o1, o2) -> 0;
         private long limitResults;
+        private Float minHeight;
+        private Float maxHeight;
         private String description = "Search for entries where ";
 
         /**
@@ -92,6 +94,10 @@ public class MunroFinderService {
          * @return this {@link Query}.
          */
         public Query minHeight(float minHeight) {
+            this.minHeight = minHeight;
+            if (maxHeight != null && minHeight > maxHeight) {
+                throw new IllegalArgumentException("Minimum height must be less than maximum.");
+            }
             this.filters = filters.and(munro -> munro.getHeight() >= minHeight);
             description += String.format("minimum height is %f; ", minHeight);
             return this;
@@ -104,6 +110,10 @@ public class MunroFinderService {
          * @return this {@link Query}.
          */
         public Query maxHeight(float maxHeight) {
+            this.maxHeight = maxHeight;
+            if (minHeight != null && maxHeight < minHeight) {
+                throw new IllegalArgumentException("Maximum height must be greater than minimum");
+            }
             this.filters = filters.and(munro -> munro.getHeight() <= maxHeight);
             description += String.format("maximum height is %f; ", maxHeight);
             return this;

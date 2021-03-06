@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Ben More",
+    "height": 1174,
+    "gridReference": "NN432244",
+    "category": "MUN"
+  },
+  {
+    "name": "Stob Binnein",
+    "height": 1165,
+    "gridReference": "NN434227",
+    "category": "MUN"
+  },
+  {
+    "name": "Stob Binnein - Stob Coire an Lochain",
+    "height": 1068,
+    "gridReference": "NN438220",
+    "category": "TOP"
+  },
+  {
+    "name": "Cruach Ardrain SW Top",
+    "height": 1044.9,
+    "gridReference": "NN408211",
+    "category": "TOP"
+  }
+]
