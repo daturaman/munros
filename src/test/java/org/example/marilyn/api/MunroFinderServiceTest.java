@@ -1,4 +1,4 @@
-package org.example.marilyn;
+package org.example.marilyn.api;
 
 import static org.example.marilyn.Munro.Category.MUN;
 import static org.example.marilyn.Munro.Category.TOP;
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.example.marilyn.Munro;
 import org.example.marilyn.Munro.Category;
-import org.example.marilyn.api.MunroFinderService;
 import org.example.marilyn.api.MunroFinderService.Query;
 import org.example.marilyn.data.MunroLoader;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +28,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-class MunroFinderServiceTest {
+public class MunroFinderServiceTest {
 
     private final static Predicate<Munro> CATEGORY_NOT_NULL = munro -> munro.getCategory() == null;
     private final static Predicate<Munro> GRID_REF_NOT_NULL = munro -> munro.getGridReference() == null;
